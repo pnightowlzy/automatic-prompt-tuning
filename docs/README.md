@@ -39,4 +39,20 @@ resample的工作仍然交由LLM，其prompt如下。
 
 这里是先有一个初始的prompt，然后给定一些error samples(init prompt)无法预测正确的，然后再让LLM给出当前prompt预测错误的原因，这一原因即文本形式的“gradient”。
 
-生成gradient的prompt如下。
+### 算法流程
+![alt text](/data/imgs/prompt-optimization.png)
+$$
+p_0: 初始化Prompt \\
+zb:beam的的宽度\\
+r:搜索的深度\\ 
+m:metric function
+$$
+C 是 Candidate 候选集，在 prompt 集合 B中进行 Prompt Expand， 扩展之后的Prompt放入C中。 每轮扩展之后，进行挑选 $Select_b(C,m)$, 保留打分超过阈值的 Prompt， 继续下一轮的Extention。
+
+$Select_b$策略提到了两种方式，UCB Bandit和Successive Rejects. 这里主要讲一下Successive Rejects， 这种方式主要是通过从样本中采样，然后用我们的Prompts进行生成并进行评估，然后每一轮都淘汰掉评估分数最低的Prompts，直到最后一个Prompts，那这个就是最好的Prompt。
+
+### 代码实现
+https://github.com/microsoft/LMOps/tree/main/prompt_optimization
+
+
+
